@@ -1,4 +1,3 @@
-#%%
 import matplotlib.pyplot as plt
 import numpy as np
 from skimage.measure import regionprops, label
@@ -34,16 +33,18 @@ def recognize(region):
         elif holes == 1: # A, 0, D, P
             _, cy = region.centroid_local
             cy /= region.image.shape[0]
+            cy_norm = int(cy * 100)
             _, cx = region.centroid_local
             cx /= region.image.shape[1]
-            if cy < 0.56 and count_vlines(region) > 0:
-                return "P"
-            if cx > 0.56 and count_vlines(region) > 0 and cy < 0.05:
+            cx_norm = int(cx * 100)
+            if cy_norm > 30 and cx_norm > 40 and count_vlines(region) > 1:
                 return "D"
-            if count_vlines(region) > 0:
-                return "0"
-            else:
+            if cy_norm > 40 and cx_norm >= 45 and count_vlines(region) == 0:
                 return "A"
+            if cy_norm < 30 and cx_norm < 40 and count_vlines(region) > 0:
+                return "P"
+            if cy_norm > 30 and cx_norm > 40 and count_vlines(region) <= 1:
+                return "0"
         else: # 1, *, /, X, W
             if count_vlines(region) >= 3:
                 return "1"
@@ -84,4 +85,3 @@ for i, region in enumerate(regions):
     plt.savefig(out_path / f"{i:03d}.png")
 
 print(result)
-#%%
